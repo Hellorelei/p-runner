@@ -57,27 +57,31 @@ def main():
         ansi.BOLD + LOGO + ansi.ENDC 
         + '\n version 1.0, © Lorelei Chevroulet' + 2 * '\n'
         )
-    directory = select_dir()
-    out_directory = select_out_dir()
-    print(ansi.BOLD + '2)  Processing file(s):' + 3 * '\n' + ansi.ENDC)
-    num = 0
-    total = str(len(list(directory.glob('*')))) 
-    for file in directory.iterdir():
-        num += 1
-        print(
-            2 * (ansi.UP + ansi.CLINE)
-            + f'    {ansi.BR_BLUE}{num:6}{ansi.ENDC}/{total:6} | File name\n'
-            + 20 * ' ' + file.name
-            )
-        time.sleep(0)
-        if not file.name == '.DS_Store':
-            content = import_text(file)
-            export = html_slice(content)
-            if export is not None:
-                export_text(out_directory, export, file.name)
+    while True:
+        mode = select_mode()
+        print('\n')
+        if mode == '1':
+            prune_html()
+        elif mode == '2':
+            export_long()
+        else:
+            print(mode)
+            sys.exit()
+
+
+
+def select_mode():
+    print(
+        ansi.BOLD 
+        + '1)  Select mode: \n\n' 
+        + ansi.ENDC
+        + '    1: Prune HTML\n'
+        + '    2: Filter longer text files \n'
+        )
+    return input(PROMPT)
 
 def select_dir():
-    print(ansi.BOLD + '1)  Enter text files directory:\n' + ansi.ENDC)
+    print(ansi.BOLD + '2)  Enter text files directory:\n' + ansi.ENDC)
     directory = Path(input(PROMPT).strip().replace("\\", ""))
     print(f'\n    Looking for \'{ansi.BR_BLUE}{directory}{ansi.ENDC}\'...')
     if not directory.exists():
@@ -101,7 +105,7 @@ def select_dir():
         sys.exit()
 
 def select_out_dir():
-    print(ansi.BOLD + '2)  Enter output directory:\n' + ansi.ENDC)
+    print(ansi.BOLD + '3)  Enter output directory:\n' + ansi.ENDC)
     out_dir = Path(input(PROMPT).strip().replace("\\", ""))
     print(f'\n    Looking for \'{ansi.BR_BLUE}{out_dir}{ansi.ENDC}\'...')
     if not out_dir.exists():
@@ -123,6 +127,27 @@ def select_out_dir():
     else:
         sys.exit()
 
+def prune_html():
+    directory = select_dir()
+    out_directory = select_out_dir()
+    print(ansi.BOLD + '4)  Processing file(s):' + 3 * '\n' + ansi.ENDC)
+    num = 0
+    total = str(len(list(directory.glob('*'))))
+    for file in directory.iterdir():
+        num += 1
+        print(
+            2 * (ansi.UP + ansi.CLINE)
+            + f'    {ansi.BR_BLUE}{num:6}{ansi.ENDC}/{total:6} | File name\n'
+            + 20 * ' ' + file.name
+            )
+        time.sleep(0)
+        if not file.name == '.DS_Store':
+            content = import_text(file)
+            export = html_slice(content)
+            if export is not None:
+                export_text(out_directory, export, file.name)
+
+
 def import_text(file):
     try:
         with file.open('r', encoding='utf-8') as file:
@@ -133,10 +158,34 @@ def import_text(file):
             + 'Error while accessing file '
             + file.name
             + ansi.ENDC
-            + 2 * '\r'
+            + 4 * '\r'
             )
 
-def filter_text():
+def export_long():
+    directory = select_dir()
+    out_directory = select_out_dir()
+    print(ansi.BOLD + '4)  Processing file(s):' + 3 * '\n' + ansi.ENDC)
+    num = 0
+    num_file = 0
+    total = str(len(list(directory.glob('*'))))
+    for file in directory.iterdir():
+        num += 1
+        print(
+            2 * (ansi.UP + ansi.CLINE)
+            + f'    {ansi.BR_BLUE}{num:6}{ansi.ENDC}/{total:6} | File name\n'
+            + 20 * ' ' + file.name
+            )
+        time.sleep(0)
+        if not file.name == '.DS_Store':
+            content = import_text(file)
+            if len(content) > 500:
+                export = content
+                if export is not None:
+                    export_text(out_directory, export, file.name)
+                    num_file = num_file + 1
+    print(
+        f'    {num_file:6} file(s) exported.'
+    )
     return
 
 def export_text(out_dir, export, filename):
