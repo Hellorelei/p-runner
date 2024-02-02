@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 import glob
 import time
+import random
 
 class ansi:
     HEADER = '\033[95m'
@@ -64,6 +65,8 @@ def main():
             prune_html()
         elif mode == '2':
             export_long()
+        elif mode =='3':
+            pick_rand()
         else:
             print(mode)
             sys.exit()
@@ -77,6 +80,7 @@ def select_mode():
         + ansi.ENDC
         + '    1: Prune HTML\n'
         + '    2: Filter longer text files \n'
+        + '    3: Pick n random files\n'
         )
     return input(PROMPT)
 
@@ -187,6 +191,38 @@ def export_long():
         f'    {num_file:6} file(s) exported.'
     )
     return
+
+def pick_rand():
+    directory = select_dir()
+    out_directory = select_out_dir()
+    n = int(input('3.5) How many random files? \n' + PROMPT))
+    print(ansi.BOLD + '4)  Processing file(s):' + 3 * '\n' + ansi.ENDC)
+    num = 0
+    num_file = 0
+    total = str(len(list(directory.glob('*'))))
+    dir_list = list(directory.glob('*'))
+    picked_files = random.sample(dir_list, n)
+    time.sleep(5)
+    for file in directory.iterdir():
+        num += 1
+        print(
+            2 * (ansi.UP + ansi.CLINE)
+            + f'    {ansi.BR_BLUE}{num:6}{ansi.ENDC}/{total:6} | File name\n'
+            + 20 * ' ' + file.name
+            )
+        time.sleep(0)
+        if not file.name == '.DS_Store':
+            if file in picked_files:
+                content = import_text(file)
+                export = content
+                if export is not None:
+                    export_text(out_directory, export, file.name)
+                    num_file = num_file + 1
+    print(
+        f'    {num_file:6} file(s) picked and exported.'
+    )
+    return
+
 
 def export_text(out_dir, export, filename):
     file = Path(out_dir/filename)
