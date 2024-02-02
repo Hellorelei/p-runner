@@ -58,6 +58,7 @@ def main():
         + '\n version 1.0, © Lorelei Chevroulet' + 2 * '\n'
         )
     directory = select_dir()
+    out_directory = select_out_dir()
     print(ansi.BOLD + '2)  Processing file(s):' + 3 * '\n' + ansi.ENDC)
     num = 0
     total = str(len(list(directory.glob('*')))) 
@@ -129,10 +130,11 @@ def import_text(file):
     except Exception:
         print(
             ansi.FAIL + ansi.BOLD
-            + 'Error while accessing file.'
+            + 'Error while accessing file '
+            + file.name
             + ansi.ENDC
+            + '\r'
             )
-        sys.exit()
 
 def filter_text():
     return
