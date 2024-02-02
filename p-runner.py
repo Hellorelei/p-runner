@@ -133,7 +133,7 @@ def import_text(file):
             + 'Error while accessing file '
             + file.name
             + ansi.ENDC
-            + '\r'
+            + 2 * '\r'
             )
 
 def filter_text():
